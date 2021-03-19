@@ -5,19 +5,21 @@ import sqlite3
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
 
+# to create dictionary object of data from database
 def dict_factory(cursor, row):
     d = {}
     for idx, col in enumerate(cursor.description):
         d[col[0]] = row[idx]
     return d
 
-
+# home page 
 @app.route('/', methods=['GET'])
 def home():
     return '''<h1>Distant Reading Archive</h1>
 <p>A prototype API for distant reading of science fiction novels.</p>'''
 
 
+# to get all entries from database
 @app.route('/api/v1/resources/books/all', methods=['GET'])
 def api_all():
     conn = sqlite3.connect('books.db')
@@ -25,6 +27,7 @@ def api_all():
     cur = conn.cursor()
     all_books = cur.execute('SELECT * FROM books;').fetchall()
 
+    # convert the python object into json using jsonify
     return jsonify(all_books)
 
 
@@ -34,6 +37,7 @@ def page_not_found(e):
     return "<h1>404</h1><p>The resource could not be found.</p>", 404
 
 
+# api_filter function helps in adding filtering clause to sql query.
 @app.route('/api/v1/resources/books', methods=['GET'])
 def api_filter():
     query_parameters = request.args
